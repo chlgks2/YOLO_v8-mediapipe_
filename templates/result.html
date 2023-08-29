@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Result - Most Common Labels</title>
+</head>
+<body>
+    <h1>Most Common Labels</h1>
+    <ul>
+        {% for label, count in most_common_labels %}
+            <li>{{ label }} ({{ count }} occurrences)</li>
+        {% endfor %}
+    </ul>
+    <form method="post">
+        <h3>결제하고 e-mail로 일자별 차트 받기</h3>
+        <p>3000원임다</p>
+        <img src="{{ url_for('static', filename='qr_result_.jpg') }}" alt="QR Code" width="200" height="200">
+        <br>
+        <label for="email">이메일적으쇼:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">전송하기 </button>
+    </form>
+    <a href="/">빠꾸치기</a>
+</body>
+</html>

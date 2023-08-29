@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>한이의 하루동안 탐지된 물건</title>
+    <!-- 뷰포트 설정 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Charts 라이브러리 로드 -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {
+            'packages': ['corechart']
+        });
+
+        google.charts.setOnLoadCallback(function() {
+            drawChart($('#datepicker').val());
+        });
+
+        function drawChart(date) {
+            $.get(`/chart_data/${date}`, function(data) {
+                var chartData = new google.visualization.DataTable();
+                chartData.addColumn('string', 'Label');
+                chartData.addColumn('number', 'Count');
+                chartData.addRows(data.length);
+                for (var i = 0; i < data.length; i++) {
+                    chartData.setCell(i, 0, data[i].label);
+                    chartData.setCell(i, 1, data[i].count);
+                }
+
+                var options = {
+                    title: `한이 애기의 하루동안 탐지된 물건 - ${date}`,
+                    pieHole: 0.4,
+                    width: 'auto',
+                    height: 'auto',
+                    chartArea: {
+                        width: '80%',
+                        height: '70%'
+                    }
+                };
+
+                var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+                chart.draw(chartData, options);
+            });
+        }
+
+        $(document).ready(function() {
+            $('#datepicker').change(function() {
+                var selectedDate = $(this).val();
+                drawChart(selectedDate);
+            });
+
+            var today = new Date().toISOString().split('T')[0];
+            $('#datepicker').val(today);
+        });
+
+        // 윈도우 리사이즈 이벤트 핸들러 추가
+        window.addEventListener("resize", function() {
+            drawChart($('#datepicker').val());
+        });
+    </script>
+    <style>
+        /* 전체 화면을 채우는 스타일 */
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* Overflow 설정 추가 */
+        #chart_div {
+            overflow: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>한이 애기의 하루동안 탐지된 물건</h1>
+
+    <!-- Date Picker -->
+    <input type="date" id="datepicker">
+
+    <!-- Chart Div -->
+    <div id="chart_div" style="width: 1000px; height: 600px; margin-top: 20px;"></div>
+</body>
+
+</html>
