@@ -1,3 +1,25 @@
+# --- 자격증명 분리 : 하드코딩된 키를 .env 로 옮겼습니다 ---
+import os
+from pathlib import Path
+
+
+def _load_dotenv():
+    here = Path(__file__).resolve().parent
+    for d in [here, *here.parents][:4]:
+        f = d / ".env"
+        if not f.exists():
+            continue
+        for line in f.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+        return
+
+
+_load_dotenv()
+
 from flask import Flask
 from flask_mail import Mail, Message
 
@@ -6,12 +28,12 @@ mail = Mail()
 def create_app():
     app = Flask(__name__)
 
-    app.config['MAIL_SERVER'] = '주소'  # Gmail SMTP 서버 주소
-    app.config['MAIL_PORT'] = 123   # TLS/STARTTLS용 포트
+    app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = True  # TLS 필요 (TLS/STARTTLS 사용)
     app.config['MAIL_USE_SSL'] = False  # SSL 사용하지 않음 (TLS/STARTTLS를 사용하므로)
-    app.config['MAIL_USERNAME'] = '유저네임쓰셈요'  
-    app.config['MAIL_PASSWORD'] = '비번쓰셈요'  # 2023 08 23
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
 
     mail.init_app(app)
     

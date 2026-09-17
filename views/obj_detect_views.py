@@ -1,3 +1,25 @@
+# --- 자격증명 분리 : 하드코딩된 키를 .env 로 옮겼습니다 ---
+import os
+from pathlib import Path
+
+
+def _load_dotenv():
+    here = Path(__file__).resolve().parent
+    for d in [here, *here.parents][:4]:
+        f = d / ".env"
+        if not f.exists():
+            continue
+        for line in f.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+        return
+
+
+_load_dotenv()
+
 from flask import Blueprint, Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
 import openai
@@ -36,7 +58,7 @@ init_db()
 # CORS(app)
 
 # OpenAI API 키 설정
-openai.api_key = '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'
+openai.api_key = os.environ.get("OPENAI_API_KEY", "")
 model = YOLO('best.pt')
 AUDIO_DIR = 'audio_files'
 
@@ -85,7 +107,7 @@ def detect():
         explanation = "아무것도 탐지되지 않았습니다."
 
     # 가장 최근에 생성된 폴더의 경로를 가져오는 코드
-    base_folder = "C:/Users/user/lecture/Craw_A/torch/2023_08_pj/yolo_tts/mom/gugu_beta-master (1)/gugu_beta_master/runs/detect"
+    base_folder = os.environ.get("DETECT_RUNS_DIR", os.path.join(os.getcwd(), "runs", "detect"))
                    
     all_subfolders = [f for f in listdir(base_folder) if path.isdir(path.join(base_folder, f)) and "predict" in f]
     all_subfolders.sort()  # 폴더 이름을 기준으로 정렬
@@ -172,7 +194,7 @@ def chart_data(date):
 #         most_common_labels = label_counts.most_common(5)
 
 
-#         message = Message(subject="우리애의 관심물건 탑 5 ", recipients=[email], sender="chlgks22@gmail.com")
+#         message = Message(subject="우리애의 관심물건 탑 5 ", recipients=[email], sender=os.environ.get("MAIL_SENDER", ""))
 #         message.body = "\n".join([f"{label} - {count} occurrences" for label, count in most_common_labels])
         
 #         message.body += "\n \n 더많은 정보가 알고싶으면 눌러보던가 :  http://127.0.0.1:5000/result_chart !"
@@ -197,7 +219,7 @@ def result():
         most_common_labels = label_counts.most_common(5)
 
         # 이메일 메시지를 구성합니다.
-        message = Message(subject="우리애의 관심물건 탑 5 ", recipients=[email], sender="chlgks22@gmail.com")
+        message = Message(subject="우리애의 관심물건 탑 5 ", recipients=[email], sender=os.environ.get("MAIL_SENDER", ""))
         message.body = "\n".join([f"{label} - {count} occurrences" for label, count in most_common_labels])
         message.body += "\n \n 더 많은 정보가 알고 싶으면 눌러보던가 :  http://127.0.0.1:5000/result_chart !"
 

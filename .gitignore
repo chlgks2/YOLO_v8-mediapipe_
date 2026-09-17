@@ -2,3 +2,16 @@
 __pycache__/
 audio_files/
 runs/detect/
+
+# 자격증명 — 커밋 금지
+.env
+.env.*
+!.env.example
+*credentials*
+*secret*
+*.pem
+*.key
+
+# 생성물
+temp_audio.mp3
+audio_*.mp3
